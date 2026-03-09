@@ -9,18 +9,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Professional dark gray palette
+        // Dark charcoal palette based on #222526
         navy: {
-          950: "#141418",
-          900: "#1C1C22",
-          800: "#232329",
-          700: "#2C2C34",
-          600: "#3A3A44",
-          500: "#4A4A56",
-          400: "#62626E",
-          300: "#85858F",
-          200: "#A8A8B0",
-          100: "#CCCCD2",
+          950: "#222526",
+          900: "#2A2D2E",
+          800: "#333637",
+          700: "#3D4041",
+          600: "#4A4D4E",
+          500: "#5A5D5E",
+          400: "#6E7172",
+          300: "#8A8D8E",
+          200: "#A8ABAC",
+          100: "#C8CBCC",
         },
         accent: {
           DEFAULT: "#6366F1",

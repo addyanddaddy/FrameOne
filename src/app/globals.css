@@ -17,16 +17,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #1C1C22;
+  background: #222526;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3A3A44;
+  background: #4A4D4E;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4A4A56;
+  background: #5A5D5E;
 }
 
 /* Selection */
@@ -111,9 +111,9 @@
 
 /* Glass effect */
 .glass {
-  background: rgba(28, 28, 34, 0.85);
+  background: rgba(34, 37, 38, 0.85);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(58, 58, 68, 0.5);
+  border: 1px solid rgba(74, 77, 78, 0.5);
 }
 
 /* Accent glow effect for buttons/cards */
