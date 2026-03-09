@@ -20,11 +20,13 @@ import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 const platformNav = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: "Community", href: "/community", icon: UserGroupIcon },
   { name: "Discover", href: "/discover", icon: MagnifyingGlassIcon },
   { name: "Projects", href: "/projects", icon: FilmIcon },
   { name: "Casting", href: "/casting", icon: StarIcon },

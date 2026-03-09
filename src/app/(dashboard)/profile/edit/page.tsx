@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
+import { AvatarUpload } from "@/components/upload/avatar-upload";
+import { FileUpload } from "@/components/upload/file-upload";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 export default function ProfileEditPage() {
@@ -39,10 +40,21 @@ export default function ProfileEditPage() {
         <p className="text-sm text-zinc-400 mt-1">Manage your professional profiles across different roles.</p>
       </div>
 
-      {/* User info card */}
+      {/* User info card with avatar upload */}
       <Card className="p-6">
-        <div className="flex items-center gap-4">
-          <Avatar name={session?.user?.name || "User"} size="xl" />
+        <div className="flex items-center gap-6">
+          <AvatarUpload
+            name={session?.user?.name || "User"}
+            currentUrl={session?.user?.image}
+            onUploadComplete={(url) => {
+              fetch("/api/users/me", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ avatarUrl: url }),
+              });
+            }}
+            size="xl"
+          />
           <div>
             <h2 className="text-xl font-semibold text-white">{session?.user?.name}</h2>
             <p className="text-sm text-zinc-400">{session?.user?.email}</p>
@@ -85,13 +97,41 @@ export default function ProfileEditPage() {
                 <Input label="City" defaultValue={profile.city || ""} placeholder="Los Angeles" />
                 <Input label="Region / State" defaultValue={profile.region || ""} placeholder="California" />
                 <Input label="Country" defaultValue={profile.country || ""} placeholder="United States" />
-                <Input label="Portfolio URL" defaultValue={profile.portfolioUrl || ""} placeholder="https://..." />
-                <Input label="Reel URL" defaultValue={profile.reelUrl || ""} placeholder="https://vimeo.com/..." />
               </div>
+
               <div className="mt-4">
-                <Textarea label="Bio" defaultValue={profile.bio || ""} placeholder="Describe your experience..." />
+                <Textarea label="Bio" defaultValue={profile.bio || ""} placeholder="Describe your experience, specialties, and what you bring to a production..." />
               </div>
-              <div className="flex justify-end mt-4">
+
+              {/* Media uploads */}
+              <div className="mt-6 border-t border-zinc-800 pt-6">
+                <h4 className="text-sm font-semibold text-white mb-4">Media & Documents</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FileUpload
+                    type="image"
+                    label="Portfolio / Headshots"
+                    description="Production stills, headshots, lookbooks"
+                    currentUrl={profile.portfolioUrl}
+                    onUploadComplete={(url) => console.log("Portfolio:", url)}
+                  />
+                  <FileUpload
+                    type="video"
+                    label="Demo Reel"
+                    description="Your best work — MP4 or MOV up to 256MB"
+                    currentUrl={profile.reelUrl}
+                    onUploadComplete={(url) => console.log("Reel:", url)}
+                  />
+                  <FileUpload
+                    type="document"
+                    label="Resume / CV"
+                    description="PDF format preferred"
+                    currentUrl={profile.resumeUrl}
+                    onUploadComplete={(url) => console.log("Resume:", url)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end mt-6">
                 <Button size="sm">Save Changes</Button>
               </div>
             </Card>

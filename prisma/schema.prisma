@@ -191,6 +191,12 @@ model User {
   submittedInvoices Invoice[]          @relation("InvoiceSubmitter")
   approvedInvoices  Invoice[]          @relation("InvoiceApprover")
   uploadedDocuments Document[]
+  posts             Post[]             @relation("UserPosts")
+  comments          Comment[]          @relation("UserComments")
+  sentMessages      Message[]          @relation("SentMessages")
+  receivedMessages  Message[]          @relation("ReceivedMessages")
+  conversationsA    Conversation[]     @relation("ConversationsA")
+  conversationsB    Conversation[]     @relation("ConversationsB")
 
   @@index([email])
 }
@@ -729,6 +735,77 @@ model DocumentAccess {
   @@unique([documentId, roleProfileId])
   @@index([documentId])
   @@index([roleProfileId])
+}
+
+// ─────────────────────────────────────────────────
+// SOCIAL / COMMUNITY
+// ─────────────────────────────────────────────────
+
+model Post {
+  id          String   @id @default(cuid())
+  authorId    String
+  content     String
+  imageUrl    String?
+  videoUrl    String?
+  postType    String   @default("update") // update, announcement, job_alert, welcome, milestone
+  visibility  String   @default("public") // public, connections, role_specific
+  targetRoles Json?    // Array of role slugs this post is visible to
+  likesCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author   User      @relation("UserPosts", fields: [authorId], references: [id])
+  comments Comment[]
+
+  @@index([authorId])
+  @@index([postType])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation("UserComments", fields: [authorId], references: [id])
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  senderId    String
+  recipientId String
+  content     String
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  sender    User @relation("SentMessages", fields: [senderId], references: [id])
+  recipient User @relation("ReceivedMessages", fields: [recipientId], references: [id])
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([recipientId, readAt])
+  @@index([createdAt])
+}
+
+model Conversation {
+  id            String   @id @default(cuid())
+  participantA  String
+  participantB  String
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  userA User @relation("ConversationsA", fields: [participantA], references: [id])
+  userB User @relation("ConversationsB", fields: [participantB], references: [id])
+
+  @@unique([participantA, participantB])
+  @@index([participantA, lastMessageAt])
+  @@index([participantB, lastMessageAt])
 }
 
 // ─────────────────────────────────────────────────
