@@ -1155,4 +1155,3 @@ Portfolio Matching: Using AI embeddings to find professionals with similar style
 
 Prepared by Brandon Bible, Technical Lead
 March 9, 2026
-Built with Claude Opus 4.6
