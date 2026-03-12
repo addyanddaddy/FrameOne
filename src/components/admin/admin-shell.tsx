@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -160,7 +159,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
       {/* Logo area */}
       <div className="flex h-16 items-center gap-3 px-4 py-5 border-b border-white/[0.06]">
         <Link href="/admin" className="flex items-center gap-2.5">
-          <Image src="/logo.png" alt="FrameOne" width={28} height={28} className="rounded-md" />
+          <img src="/logo.png" alt="FrameOne" width={28} height={28} className="rounded-md" />
           <span className="text-base font-light tracking-wide text-[#f0efe6]">FrameOne</span>
           <span className="ml-1 inline-flex items-center rounded-md bg-[#9d7663]/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-[#c4a47a]">
             {t("admin.admin")}
