@@ -166,28 +166,8 @@ const fallbackStats: AdminStats = {
 // ---------------------------------------------------------------------------
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const res = await fetch("/api/admin/stats");
-        if (res.ok) {
-          const data = await res.json();
-          setStats(data);
-        } else {
-          // Fall back to mock data if API not ready
-          setStats(fallbackStats);
-        }
-      } catch {
-        setStats(fallbackStats);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, []);
+  const [stats, setStats] = useState<AdminStats>(fallbackStats);
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -195,7 +175,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 animate-fade-in">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
-          : stats?.kpis.map((kpi, i) => {
+          : stats.kpis.map((kpi, i) => {
               const Icon = kpiIcons[i] ?? UsersIcon;
               return (
                 <div
@@ -238,7 +218,7 @@ export default function AdminDashboardPage() {
                     <SkeletonBlock className="h-3 w-1/3" />
                   </div>
                 ))
-              : stats?.recentActivity.map((evt) => (
+              : stats.recentActivity.map((evt) => (
                   <div key={evt.id} className="px-6 py-3.5 hover:bg-white/[0.02] transition-colors">
                     <p className="text-[13px] text-[#f0efe6]">{evt.action}</p>
                     <p className="text-xs text-[#9e9eab] mt-0.5">
@@ -260,7 +240,7 @@ export default function AdminDashboardPage() {
               ? Array.from({ length: 3 }).map((_, i) => (
                   <SkeletonBlock key={i} className="h-14 w-full" />
                 ))
-              : stats?.alerts.map((alert) => (
+              : stats.alerts.map((alert) => (
                   <div
                     key={alert.id}
                     className={`flex items-center gap-3 rounded-xl px-4 py-3 ${
@@ -309,7 +289,7 @@ export default function AdminDashboardPage() {
               ? Array.from({ length: 4 }).map((_, i) => (
                   <SkeletonBlock key={i} className="h-10 w-full" />
                 ))
-              : stats?.aiUsage.map((feat) => {
+              : stats.aiUsage.map((feat) => {
                   const maxUsage = Math.max(...(stats.aiUsage.map((f) => f.usageCount) || [1]));
                   const widthPct = Math.max((feat.usageCount / maxUsage) * 100, 4);
                   return (
@@ -358,7 +338,7 @@ export default function AdminDashboardPage() {
               <>
                 <div className="mb-5">
                   <p className="text-3xl font-light text-[#c4a47a]">
-                    {stats?.userGrowth.signupsThisWeek}
+                    {stats.userGrowth.signupsThisWeek}
                   </p>
                   <p className="text-xs uppercase tracking-[0.2em] text-[#9e9eab] mt-1">
                     New signups this week
@@ -368,7 +348,7 @@ export default function AdminDashboardPage() {
                   <p className="text-[10px] uppercase tracking-[0.2em] text-[#9e9eab] font-semibold">
                     Role Distribution
                   </p>
-                  {stats?.userGrowth.roles.map((role) => {
+                  {stats.userGrowth.roles.map((role) => {
                     const maxCount = Math.max(
                       ...(stats.userGrowth.roles.map((r) => r.count) || [1])
                     );
@@ -431,7 +411,7 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
-                  {stats?.recentUsers.map((u) => (
+                  {stats.recentUsers.map((u) => (
                     <tr
                       key={u.id}
                       className="hover:bg-white/[0.02] transition-colors"
