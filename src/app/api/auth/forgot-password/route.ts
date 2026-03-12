@@ -2,13 +2,15 @@ import { NextRequest } from "next/server";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { success } from "@/lib/api-helpers";
+import { Resend } from "resend";
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
 
     if (!email || typeof email !== "string") {
-      // Still return 200 to not reveal anything
       return success({ message: "If an account exists with that email, we've sent a password reset link." });
     }
 
@@ -17,14 +19,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (user) {
-      // Delete any existing tokens for this user
       await prisma.passwordResetToken.deleteMany({
         where: { userId: user.id },
       });
 
-      // Generate a secure random token
       const token = randomBytes(32).toString("hex");
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
       await prisma.passwordResetToken.create({
         data: {
@@ -34,16 +34,39 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Log the reset URL (no email sending yet)
-      const resetUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/auth/reset-password?token=${token}`;
-      console.log(`[Password Reset] Reset link for ${user.email}: ${resetUrl}`);
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`;
+
+      if (resend) {
+        await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL || "FrameOne <noreply@resend.dev>",
+          to: user.email,
+          subject: "Reset your FrameOne password",
+          html: `
+            <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; background: #0f0f14; color: #edebe2;">
+              <h1 style="font-size: 24px; font-weight: 300; margin-bottom: 24px; color: #edebe2;">Password Reset</h1>
+              <p style="font-size: 14px; line-height: 1.6; color: #b8b5a8; margin-bottom: 24px;">
+                Hi ${user.name || "there"},<br><br>
+                We received a request to reset your FrameOne password. Click the button below to set a new password. This link expires in 1 hour.
+              </p>
+              <a href="${resetUrl}" style="display: inline-block; background: #9d7663; color: #ffffff; text-decoration: none; padding: 12px 32px; border-radius: 999px; font-size: 14px; font-weight: 500;">
+                Reset Password
+              </a>
+              <p style="font-size: 12px; color: #8a8a96; margin-top: 32px; line-height: 1.5;">
+                If you didn't request this, you can safely ignore this email.<br>
+                — The FrameOne Team
+              </p>
+            </div>
+          `,
+        });
+      } else {
+        console.log(`[Password Reset] No email service configured. Reset link for ${user.email}: ${resetUrl}`);
+      }
     }
 
-    // Always return success regardless of whether user exists
     return success({ message: "If an account exists with that email, we've sent a password reset link." });
   } catch (e) {
     console.error("Forgot password error:", e);
-    // Still return 200 to not reveal anything
     return success({ message: "If an account exists with that email, we've sent a password reset link." });
   }
 }
